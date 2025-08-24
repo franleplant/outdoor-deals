@@ -545,7 +545,11 @@ async function fetchProductsFromUrls(urls) {
     all.push(...batch);
   }
 
-  // Process sitemaps by domain
+  // Skip sitemap processing - we only need deals from listing pages
+  console.log(`\n🗺️  Skipping sitemap processing (only processing seed listing pages)`);
+  
+  // Uncomment below if you want to enable individual product page scraping from sitemaps:
+  /*
   if (!TEST_MODE) {
     console.log(`\n🗺️  Processing sitemaps...`);
     const byDomain = new Map();
@@ -577,9 +581,8 @@ async function fetchProductsFromUrls(urls) {
       console.log(`   ➜ Found ${prods.length} products from sitemap pages`);
       all.push(...prods);
     }
-  } else {
-    console.log(`🧪 TEST MODE: Skipping sitemap processing for debugging`);
   }
+  */
 
   console.log(`\n📊 Processing ${all.length} total products found...`);
 
