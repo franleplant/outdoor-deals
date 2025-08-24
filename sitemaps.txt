@@ -1,0 +1,9 @@
+https://www.rei.com/sitemap-product.xml
+https://www.backcountry.com/siteindex.xml
+https://www.patagonia.com/sitemap_index.xml
+https://www.mec.ca/sitemap.xml
+https://www.evo.com/sitemap.xml
+https://www.campmor.com/sitemap.xml
+https://www.sierra.com/sitemap.xml
+https://www.altitude-sports.com/pages/sitemap
+https://www.thelasthunt.com/sitemap.xml

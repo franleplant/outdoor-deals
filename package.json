@@ -1,0 +1,15 @@
+{
+  "name": "outdoor-deals-scraper",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node scraper.mjs"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "fast-xml-parser": "^4.4.0",
+    "papaparse": "^5.4.1",
+    "p-limit": "^5.0.0",
+    "undici": "^6.19.0"
+  }
+}

@@ -1,0 +1,22 @@
+# Scraper Verbosity Rule
+
+The outdoor deals scraper must always be super verbose with detailed logging.
+
+## Requirements:
+- Always include extensive console.log statements showing progress
+- Show detailed information for each step: fetching URLs, parsing products, processing data
+- Display progress counters (e.g., "Processing seed X/Y")
+- Include emojis in log messages for better readability
+- Show statistics at each major step (products found, pages crawled, etc.)
+- Report both successes and failures with clear messaging
+- Display sample results for debugging purposes
+- Always show final summary with counts and file locations
+
+## Never remove:
+- Progress logging during crawling
+- Product extraction statistics
+- HTTP request/response logging
+- Error reporting with specific details
+- Final completion message with process.exit(0)
+
+This ensures the scraper provides complete visibility into its operation for debugging and monitoring purposes.
