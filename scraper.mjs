@@ -214,8 +214,45 @@ function heuristicExtract(html, base) {
   // Fallback to text-based search if no common selectors found
   if (candidates.length === 0) {
     candidates = $("a,article,li,div").filter((_, el) => {
-      const t = $(el).text().toLowerCase();
-      return t.includes("% off") || t.includes("sale") || t.includes("clearance") || t.includes("was") || t.includes("reg.") || t.includes("compare at");
+      const $el = $(el);
+      const text = $el.text().toLowerCase().trim();
+      
+      // Skip if element is in navigation, sidebar, header, footer areas
+      if ($el.closest('nav, .sidebar, .filter, .navigation, .header, .footer, .breadcrumb, .menu, .panel, .facet').length > 0) {
+        return false;
+      }
+      
+      // Skip if element contains filter/navigation keywords
+      if (text.includes('category') || text.includes('filter') || text.includes('brand') || 
+          text.includes('menu') || text.includes('search') || text.includes('navigation') ||
+          text.includes('by category') || text.includes('product filters')) {
+        return false;
+      }
+      
+      // Skip promotional messages that are too generic or short
+      if ((text.includes('extra') && text.includes('off') && text.length < 100) ||
+          (text.includes('save') && text.includes('off') && text.length < 50)) {
+        return false;
+      }
+      
+      // Skip if it's just price range text (like "$25.00 - $50.00")
+      if (text.match(/^\$[\d,]+\.?\d*\s*-\s*\$[\d,]+\.?\d*$/) || 
+          text.includes('under $') && text.includes(' - $')) {
+        return false;
+      }
+      
+      // Look for product indicators
+      const hasProductIndicators = text.includes("% off") || text.includes("sale") || 
+                                  text.includes("clearance") || text.includes("was") || 
+                                  text.includes("reg.") || text.includes("compare at");
+      
+      // Must also have additional product elements (image, product URL, or proper price)
+      const hasProductElements = $el.find('img[src*="product"], img[alt*="product"]').length > 0 ||
+                                 $el.find('a[href*="/product"]').length > 0 ||
+                                 $el.find('a[href*="/p/"]').length > 0 ||
+                                 (text.match(/\$[\d,]+\.?\d*/) && !text.match(/\$[\d,]+\.?\d*\s*-\s*\$/));
+      
+      return hasProductIndicators && hasProductElements && text.length > 10 && text.length < 500;
     });
     if (DEBUG_MODE && candidates.length > 0) {
       console.log(`🔍 DEBUG: Using text-based fallback, found ${candidates.length} elements`);
@@ -322,11 +359,25 @@ function heuristicExtract(html, base) {
       }
     }
     
-    if (name && url && (salePrice || listPrice)) {
+    // Validate that we have a real product before adding
+    const isValidProduct = name && url && (salePrice || listPrice) &&
+                          !name.toLowerCase().includes('category') &&
+                          !name.toLowerCase().includes('filter') &&
+                          !name.toLowerCase().includes('product filters') &&
+                          name.length > 5 && name.length < 200 &&
+                          // Skip if prices look like filter ranges (e.g., exactly $25 and $2500)
+                          !((salePrice === 25 && listPrice === 2500) || 
+                            (salePrice === 2500 && listPrice === 25)) &&
+                          // Ensure URL looks like a product page
+                          (url.includes('/product') || url.includes('/p/') || url.includes('/item'));
+
+    if (isValidProduct) {
       items.push({
         name, brand: "", url, image: $el.find("img").attr("src") || "",
         currency: "USD", listPrice, salePrice, availability: "", from: "heuristic"
       });
+    } else if (DEBUG_MODE && i < 5) {
+      console.log(`🔍 DEBUG: Skipped invalid product - name:"${name}" url:"${url}" prices:${salePrice}/${listPrice}`);
     }
   });
   console.log(`📦 Extracted ${items.length} products from heuristic`);
